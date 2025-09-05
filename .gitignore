@@ -1,0 +1,22 @@
+
+
+/node_modules
+/.env
+/database.json
+/db.js
+
+
+# command files (ignore until rewritten)
+/commands/utility/battle.js
+/commands/utility/glossary.js
+/commands/utility/items.js
+/commands/utility/quests.js
+/commands/utility/shop.js
+/commands/utility/start.js
+/commands/utility/trade.js
+
+/finds.js
+
+.vscode/
+*.log
+npm-debug.log*
