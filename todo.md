@@ -31,4 +31,4 @@
 - bug where you can go past a maxPage of 1 initally
 - ...
 
-###### all formatting credit goes to All formatting credit goes to [Zentiph](https://github.com/Zentiph)
+###### All formatting credit goes to [Zentiph](https://github.com/Zentiph)
