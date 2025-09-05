@@ -18,7 +18,7 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Create a new Discord client
+
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 // Add a Collection to store commands
@@ -75,7 +75,7 @@ const commandFolders = fs
     }, 10000);
   });
 
-  // Interaction handler
+
   client.on(Events.InteractionCreate, async (interaction) => {
     if (!interaction.isChatInputCommand()) return;
 
@@ -106,7 +106,6 @@ const commandFolders = fs
     }
   });
 
-  // Log in to Discord
   if (!process.env.BOT_TOKEN) {
     console.error("Error: BOT_TOKEN is not defined in .env!");
     process.exit(1);

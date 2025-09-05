@@ -76,7 +76,6 @@ export default {
 
     addToPlayer(player, card);
 
-    // --- Update the player in the database ---
     updatePlayer(player);
 
     const catchEmbed = new EmbedBuilder()
