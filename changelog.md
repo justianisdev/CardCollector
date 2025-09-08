@@ -2,6 +2,17 @@
 
 Historical changes made to CardCollector
 
+## v0.4.2
+
+### changes
+
+- refractored **/battle**
+
+- minor improvements
+  - added emojis
+  - expanded card base
+  - added more colorful and fun icons
+
 ## v0.4.1
 
 ### changes

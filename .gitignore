@@ -7,13 +7,16 @@
 
 
 # command files (ignore until rewritten)
-/commands/utility/battle.js
 /commands/utility/glossary.js
 /commands/utility/items.js
 /commands/utility/quests.js
 /commands/utility/shop.js
 /commands/utility/start.js
 /commands/utility/trade.js
+/commands/utility/explore.js
+/commands/utility/timed.js
+/commands/utility/gamble.js
+/commands/utility/stock.js
 
 /finds.js
 

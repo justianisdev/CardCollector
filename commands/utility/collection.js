@@ -67,6 +67,7 @@ export default {
       "rare",
       "epic",
       "legendary",
+      "special",
       "bugged",
     ];
     let collected = [];

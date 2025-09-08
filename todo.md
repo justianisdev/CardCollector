@@ -6,6 +6,9 @@
 - /quests: make quests and give rewards
 - /about: information about the bot
 - /shop: expand what you can do in the shop
+- new gamble options
+- fishing game
+- vault: if u have two of same card leave it in the vault
 - ...
 
 ### improvements
@@ -24,6 +27,7 @@
   - develop better methods of executing commands
 - Improve code strucutre (make it more consistent)
 - make /catch and others automatically register you into the database rather than running /start
+- show peoples username in embed
 - ...
 
 ### bug fixes

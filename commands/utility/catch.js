@@ -1,8 +1,12 @@
 // catch.js written by justian
 
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
-import { getOrCreatePlayer, getPlayer, updatePlayer } from "../../db.js";
+import { getOrCreatePlayer, updatePlayer } from "../../db.js";
 import { finds } from "../../finds.js";
+
+// Track cooldowns
+const cooldowns = new Map(); // key: userID, value: timestamp of last use
+const COOLDOWN = 30 * 1000; // 30 seconds in milliseconds
 
 export default {
   data: new SlashCommandBuilder()
@@ -10,7 +14,24 @@ export default {
     .setDescription("Collect a new card"),
 
   async execute(interaction) {
-    const player = getPlayer(interaction.user.id);
+    const userId = interaction.user.id;
+
+    // Check cooldown
+    const lastUsed = cooldowns.get(userId);
+    const now = Date.now();
+    if (lastUsed && now - lastUsed < COOLDOWN) {
+      const remaining = Math.ceil((COOLDOWN - (now - lastUsed)) / 1000);
+      return interaction.reply({
+        content: `⏳ You must wait ${remaining}s before catching another card!`,
+        ephemeral: true,
+      });
+    }
+
+    // Update cooldown
+    cooldowns.set(userId, now);
+
+    // Get player
+    const player = getOrCreatePlayer(userId);
 
     // rarity chances
     const rarityChances = [
@@ -21,14 +42,12 @@ export default {
       { rarity: "legendary", chance: 0.5, color: 0x9b59b6 },
     ];
 
-    // WILL MAKE CLEANER LATER
-    // color lookup
     const rarityChancesColor = {
-      common: 0xd3d3d3, // gray
-      uncommon: 0xe67e22, // orange
-      rare: 0xf1c40f, // yellow
-      epic: 0x3498db, // blue
-      legendary: 0x9b59b6, // purple
+      common: 0xd3d3d3,
+      uncommon: 0xe67e22,
+      rare: 0xf1c40f,
+      epic: 0x3498db,
+      legendary: 0x9b59b6,
     };
 
     // picks random rarity
@@ -38,9 +57,7 @@ export default {
       let cummlative = 0;
       for (const i of rarityChances) {
         cummlative += i.chance;
-        if (roll < cummlative) {
-          return i.rarity;
-        }
+        if (roll < cummlative) return i.rarity;
       }
     }
 
@@ -50,40 +67,29 @@ export default {
       const rarityColor = rarityChancesColor[rarity];
       const pool = finds[rarity];
       const randomI = Math.floor(Math.random() * pool.length);
-      const randomCard = pool[randomI];
-
-      return { card: randomCard, color: rarityColor };
+      return { card: pool[randomI], color: rarityColor };
     }
 
     const { card, color } = pickRandomCard();
 
+    // Add card to player
     function addToPlayer(player, card) {
-      // Check if player already has this card
       const existing = player.cards.find((c) => c.name === card.name);
-
-      if (existing) {
-        // If player already has it, increase quantity
-        existing.quantity += 1;
-      } else {
-        // If not, add new card to their collection
+      if (existing) existing.quantity += 1;
+      else
         player.cards.push({
           name: card.name,
           type: card.type,
           quantity: 1,
         });
-      }
     }
 
     addToPlayer(player, card);
-
     updatePlayer(player);
 
     const catchEmbed = new EmbedBuilder()
       .setTitle("🎴 New Find...")
-      .addFields({
-        name: card.name,
-        value: card.type,
-      })
+      .addFields({ name: card.name, value: card.type })
       .setColor(color);
 
     interaction.reply({ embeds: [catchEmbed] });

@@ -18,7 +18,6 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 // Add a Collection to store commands
@@ -59,7 +58,7 @@ const commandFolders = fs
 
   // Ready event
   client.once(Events.ClientReady, (readyClient) => {
-    console.log(`Ready! Logged in as ${readyClient.user.tag}`);
+    console.log(`✅ Ready! Logged in as ${readyClient.user.tag}`);
 
     const activities = [
       { name: "catching cats", type: ActivityType.Playing },
@@ -75,39 +74,62 @@ const commandFolders = fs
     }, 10000);
   });
 
-
+  // Interaction handler
   client.on(Events.InteractionCreate, async (interaction) => {
-    if (!interaction.isChatInputCommand()) return;
+    if (interaction.isChatInputCommand()) {
+      const command = client.commands.get(interaction.commandName);
 
-    const command = client.commands.get(interaction.commandName);
+      if (!command) {
+        console.error(
+          `No command matching ${interaction.commandName} was found.`
+        );
+        return;
+      }
 
-    if (!command) {
-      console.error(
-        `No command matching ${interaction.commandName} was found.`
-      );
-      return;
+      try {
+        await command.execute(interaction);
+      } catch (error) {
+        console.error(error);
+        if (interaction.replied || interaction.deferred) {
+          await interaction.followUp({
+            content: "There was an error while executing this command!",
+            flags: MessageFlags.Ephemeral,
+          });
+        } else {
+          await interaction.reply({
+            content: "There was an error while executing this command!",
+            flags: MessageFlags.Ephemeral,
+          });
+        }
+      }
     }
 
-    try {
-      await command.execute(interaction);
-    } catch (error) {
-      console.error(error);
-      if (interaction.replied || interaction.deferred) {
-        await interaction.followUp({
-          content: "There was an error while executing this command!",
-          flags: MessageFlags.Ephemeral,
-        });
-      } else {
-        await interaction.reply({
-          content: "There was an error while executing this command!",
-          flags: MessageFlags.Ephemeral,
-        });
+    // ✅ Handle buttons (like gamble game)
+    else if (interaction.isButton()) {
+      const gambleCommand = client.commands.get("gamble");
+
+      if (
+        gambleCommand &&
+        gambleCommand.handleGambleButton &&
+        (interaction.customId.startsWith("higher_") ||
+          interaction.customId.startsWith("lower_") ||
+          interaction.customId.startsWith("stop_"))
+      ) {
+        try {
+          await gambleCommand.handleGambleButton(interaction);
+        } catch (error) {
+          console.error(error);
+          await interaction.reply({
+            content: "There was an error while processing your game button!",
+            ephemeral: true,
+          });
+        }
       }
     }
   });
 
   if (!process.env.BOT_TOKEN) {
-    console.error("Error: BOT_TOKEN is not defined in .env!");
+    console.error("❌ Error: BOT_TOKEN is not defined in .env!");
     process.exit(1);
   }
   await client.login(process.env.BOT_TOKEN);
